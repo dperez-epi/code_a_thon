@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data/data_dictionary
+data/puf_csv
+data/repwgt_puf_csv
+output/
