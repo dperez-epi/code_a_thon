@@ -14,13 +14,20 @@ covid_cases <- sqldf("SELECT date_xwalk.week, date, new_cases, stdate, endate
   mutate(covid_cases = mean/1000000) %>% 
   select(endate, covid_cases)
 
-# read in pulse survey data for 2020
+# read in pulse survey data from 2020 to 2023 
 pulse_data_df1 <- map_dfr(str_pad(1:21, width = 2, pad = 0), ~ read.csv(here(paste0("data/puf_csv/pulse2020_puf_", .x,".csv"))))
 
 pulse_data_df2 <- map_dfr(22:40, ~ read.csv(here(paste0("data/puf_csv/pulse2021_puf_", .x,".csv"))))
 
+pulse_data_df3 <- map_dfr(41:52, ~ read.csv(here(paste0("data/puf_csv/pulse2022_puf_", .x,".csv"))))
+
+pulse_data_df4 <- map_dfr(53:58, ~ read.csv(here(paste0("data/puf_csv/pulse2023_puf_", .x,".csv"))))
+
+
 pulse_data <- pulse_data_df1 %>% 
   bind_rows(., pulse_data_df2) %>% 
+  bind_rows(., pulse_data_df3) %>% 
+  bind_rows(., pulse_data_df4) %>% 
   clean_names() %>% left_join(date_xwalk, by = "week")
 
 # create date df to fill in missing weeks
@@ -44,7 +51,7 @@ rsnnowrkrv_df <- pulse_data %>%
   full_join(df, by = "endate") %>% 
   pivot_longer(cols = c("covid_cases", "n"), names_to = "names", values_to = "values")
 
-write.csv(rsnnowrkrv_df, here("output/rsnnowrkrv_care.csv"))
+# write.csv(rsnnowrkrv_df, here("output/rsnnowrkrv_care.csv"))
 
 wbhao_df <- pulse_data  %>% 
   dplyr::filter(tbirth_year <= 2004) %>% 
@@ -86,18 +93,18 @@ gender_df <- pulse_data %>%
     egender == 1 | egenid_birth == 1 ~ "male", egender == 2 | egenid_birth == 2 ~ "female")) %>% 
   crosstab(endate, gender, w = pweight, row = TRUE)
 
-wb <- createWorkbook()
-
-addWorksheet(wb, sheetName = "wbhao")
-writeData(wb, x = wbhao_df, sheet = "wbhao", startRow = 1, startCol = 1)
-
-addWorksheet(wb, sheetName = "age")
-writeData(wb, x = age_df, sheet = "age", startRow = 1, startCol = 1)
-
-addWorksheet(wb, sheetName = "gender")
-writeData(wb, x = gender_df, sheet = "gender", startRow = 1, startCol = 1)
-
-saveWorkbook(wb, here("output/rsnnowrkrv_care_demo.xlsx"), overwrite = TRUE)
+# wb <- createWorkbook()
+# 
+# addWorksheet(wb, sheetName = "wbhao")
+# writeData(wb, x = wbhao_df, sheet = "wbhao", startRow = 1, startCol = 1)
+# 
+# addWorksheet(wb, sheetName = "age")
+# writeData(wb, x = age_df, sheet = "age", startRow = 1, startCol = 1)
+# 
+# addWorksheet(wb, sheetName = "gender")
+# writeData(wb, x = gender_df, sheet = "gender", startRow = 1, startCol = 1)
+# 
+# saveWorkbook(wb, here("output/rsnnowrkrv_care_demo.xlsx"), overwrite = TRUE)
 
 rsnnowrkrv_care_black_pop <- pulse_data  %>% 
   dplyr::filter(tbirth_year <= 2004) %>% 
@@ -160,13 +167,13 @@ rsnnowrkrv_care_black_share <- pulse_data  %>%
          "I am retired", "I am/was laid off or furloughed due to coronavirus pandemic", 
          "My employer closed temporarily due to the coronavirus pandemic", "My employer went out of business due to the coronavirus pandemic",
          "I do/did not have transportation to work", "Other", "NA")
-
-wb <- createWorkbook()
-
-addWorksheet(wb, sheetName = "rsnnowrk_black_sample")
-addWorksheet(wb, sheetName = "rsnnowrk_black_shares")
-
-writeData(wb, sheet = "rsnnowrk_black_sample", x = rsnnowrkrv_care_black_pop)
-writeData(wb, sheet = "rsnnowrk_black_shares", x = rsnnowrkrv_care_black_share)
-
-saveWorkbook(wb, here("output/rsnnowrkrv_black_demo.xlsx"), overwrite = TRUE)
+# 
+# wb <- createWorkbook()
+# 
+# addWorksheet(wb, sheetName = "rsnnowrk_black_sample")
+# addWorksheet(wb, sheetName = "rsnnowrk_black_shares")
+# 
+# writeData(wb, sheet = "rsnnowrk_black_sample", x = rsnnowrkrv_care_black_pop)
+# writeData(wb, sheet = "rsnnowrk_black_shares", x = rsnnowrkrv_care_black_share)
+# 
+# saveWorkbook(wb, here("output/rsnnowrkrv_black_demo.xlsx"), overwrite = TRUE)

@@ -1,13 +1,11 @@
 #Crosswalking B Zipperer's state minimum wage increase data with 
 #Pulse data week numbers
 
-library(tidyverse)
-library(here)
 library(xlsx)
 
 #import J Kandra pulse crosswalk
 # how do we choose what the cutoff date is?
-pulse_cross <- read.csv(here("date_xwalk.csv"))%>%
+pulse_cross <- read.csv(here("data/date_xwalk.csv"))%>%
   rbind(c(42,"2022-01-26","2022-02-07"),
         c(43,"2022-03-02","2022-03-14"),
         c(44,"2022-03-30","2022-04-11"),
@@ -29,7 +27,8 @@ pulse_cross <- read.csv(here("date_xwalk.csv"))%>%
          end_month=as.integer(format(as.Date(endate,format="%Y-%m-%d"),"%m")),
          st_year=as.integer(format(as.Date(stdate,format="%Y-%m-%d"),"%Y")),
          end_year=as.integer(format(as.Date(endate,format="%Y-%m-%d"),"%Y"))) %>%
-  rename(year=end_year,month=end_month)
+  rename(year=end_year,month=end_month) %>% 
+  write_csv(here("data/date_xwalk.csv"))
   
 
 #import mw_state_changes
@@ -40,7 +39,7 @@ pulse_cross <- read.csv(here("date_xwalk.csv"))%>%
 
 no_chng_states <- c("Nebraska","West Virginia")
 
-mw_changes <- read.xlsx(here("mw_state_changes.xlsx"),1) %>%
+mw_changes <- read.xlsx(here("data/mw_state_changes.xlsx"),1) %>%
   filter(mw>7.25, year>=2020,year<=2023) %>%
   subset(!(State %in% no_chng_states))%>%
   select(-mw_healthinsurance,-mw_smallbusiness,-mw_youth,-source_2,-source_notes,-source) #-source
@@ -50,6 +49,6 @@ mw_states <- mw_changes %>% distinct(State)
 
 
 #merge both: for every increase: need pulse week and state it took place in
-mw_crosswalk <- merge(mw_changes,pulse_cross, by = c("year","month"),all.x=TRUE)
+mw_crosswalk <- merge(mw_changes, pulse_cross, by = c("year","month"),all.x=TRUE)
 
 
