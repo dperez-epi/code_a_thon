@@ -44,9 +44,11 @@ mw_changes <- read.xlsx(here("data/mw_state_changes.xlsx"),1) %>%
   subset(!(State %in% no_chng_states))%>%
   select(-mw_healthinsurance,-mw_smallbusiness,-mw_youth,-source_2,-source_notes,-source) #-source
 
-#List of states with increases in the period
-mw_states <- mw_changes %>% distinct(State)
+#List of states fips with increases in the period
+mw_states <- mw_changes %>% distinct(State.FIPS.Code)
 
+#List of state names
+mw_states_names <- mw_changes %>% distinct(State)
 
 #merge both: for every increase: need pulse week and state it took place in
 mw_crosswalk <- merge(mw_changes, pulse_cross, by = c("year","month"),all.x=TRUE)
